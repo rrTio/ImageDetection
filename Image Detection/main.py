@@ -1,14 +1,11 @@
 # computer vision
 import cv2
 import os
-from tkinter import *
-from tkinter import messagebox
 
 # read image
 # img = cv2.imread('Me.jpg')
 
 # camera
-count = []
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(3, 426)
 cap.set(4, 240)
@@ -35,26 +32,23 @@ while True:
     check, img = cap.read()
     # detect object
     classIds, confs, bbox = net.detect(img, confThreshold=0.5)
-    print("Class Id: ",classIds)
-    personCount = len(classIds)
-    print("Person Count:",personCount)
-
-    if(personCount == 5):
-        top = Tk()
-        top.geometry("100x100")
-        messagebox.showwarning("Person Count", "Person Count exceeds 5!")
-        top.mainloop()
-
+    #print("Class Id: ",classIds)
+    #personCount = len(classIds)
+    #print("Person Count:",personCount)
+    count = 0
     for classID, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
+        confidenceLevel = str(round(confidence * 100, 2)) + "%"
         if(classID == 1):
             cv2.rectangle(img, box, color=(0,255,0), thickness=2)
-            cv2.putText(img, classNames[classID - 1], (box[0] + 10, box[0] + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            # show image
+            cv2.putText(img, classNames[classID - 1], (box[0] + 10, box[0] + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(img, confidenceLevel, (box[0] + 10, box[0] + 45), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             cv2.imshow("Output", img)
-            # delay
             cv2.waitKey(100)
-            print("Confidence:",str(round(confidence * 100, 2)), "%")
-
+            count += 1
+            print("Person:", count)
+            print("Confidence:", confidenceLevel)
+            if(count > 5):
+                print("MARAMI")
 
 cap.release()
 cv2.destroyAllWindows()
